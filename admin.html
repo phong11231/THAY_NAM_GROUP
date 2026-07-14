@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Quản lý nhóm học tập</title>
+<style>
+  :root {
+    --bg: #f4f0ec;
+    --surface: #ffffff;
+    --ink: #1a0f0a;
+    --ink-secondary: #5c4a42;
+    --ink-muted: #9a887e;
+    --red: #d42020;
+    --red-deep: #a01515;
+    --gold: #c8960f;
+    --gold-light: #edb830;
+    --font: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+    --font-display: 'Baloo 2', 'Be Vietnam Pro', system-ui, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100dvh;
+    line-height: 1.5;
+  }
+
+  /* ========== LOGIN ========== */
+  .login-wrap {
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: linear-gradient(160deg, #e52828 0%, #a81212 100%);
+  }
+
+  .login-card {
+    background: var(--surface);
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    text-align: center;
+  }
+
+  .login-card h1 {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    color: var(--red);
+    margin-bottom: 0.25rem;
+  }
+
+  .login-card p {
+    color: var(--ink-muted);
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--ink-secondary);
+    margin-bottom: 0.375rem;
+  }
+
+  .form-group input, .form-group select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid rgba(0,0,0,0.08);
+    border-radius: 12px;
+    font-size: 0.9375rem;
+    font-family: var(--font);
+    color: var(--ink);
+    background: var(--bg);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  .form-group input:focus, .form-group select:focus {
+    border-color: var(--red);
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 0.875rem;
+    background: linear-gradient(135deg, var(--red), var(--red-deep));
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 0.5rem;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(212,32,32,0.3);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .login-error {
+    color: var(--red);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    margin-top: 0.75rem;
+    display: none;
+  }
+
+  /* ========== ADMIN PANEL ========== */
+  .admin-wrap { display: none; }
+
+  .admin-header {
+    background: linear-gradient(135deg, var(--red), var(--red-deep));
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .admin-header h2 {
+    font-family: var(--font-display);
+    color: white;
+    font-size: 1.25rem;
+  }
+
+  .btn-logout {
+    padding: 0.5rem 1rem;
+    background: rgba(255,255,255,0.15);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-logout:hover { background: rgba(255,255,255,0.25); }
+
+  .admin-body {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 1.5rem;
+  }
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+
+  .toolbar h3 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+  }
+
+  .btn-add-class {
+    padding: 0.625rem 1.25rem;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    color: var(--ink);
+    border: none;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .btn-add-class:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(200,150,15,0.3);
+  }
+
+  /* Class cards */
+  .admin-class {
+    background: var(--surface);
+    border-radius: 20px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    overflow: hidden;
+  }
+
+  .admin-class-header {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 1.125rem 1.25rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
+  }
+
+  .admin-class-header:hover { background: rgba(0,0,0,0.02); }
+
+  .admin-class-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--red), var(--red-deep));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 800;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .admin-class-info { flex: 1; }
+
+  .admin-class-name {
+    font-weight: 700;
+    font-size: 1.0625rem;
+  }
+
+  .admin-class-count {
+    font-size: 0.8125rem;
+    color: var(--ink-muted);
+  }
+
+  .admin-class-actions {
+    display: flex;
+    gap: 0.375rem;
+  }
+
+  .btn-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(0,0,0,0.08);
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    color: var(--ink-muted);
+  }
+
+  .btn-icon:hover { border-color: var(--red); color: var(--red); }
+  .btn-icon svg { width: 16px; height: 16px; }
+
+  .admin-class-chevron {
+    transition: transform 0.25s;
+    color: var(--ink-muted);
+  }
+
+  .admin-class.open .admin-class-chevron { transform: rotate(180deg); }
+
+  .admin-class-body {
+    display: none;
+    padding: 0 1.25rem 1.25rem;
+    border-top: 1px solid rgba(0,0,0,0.06);
+  }
+
+  .admin-class.open .admin-class-body { display: block; }
+
+  /* Links inside class */
+  .admin-link-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+  }
+
+  .admin-link-item:last-child { border-bottom: none; }
+
+  .admin-link-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: white;
+  }
+
+  .admin-link-icon.zalo { background: #0068ff; }
+  .admin-link-icon.facebook { background: #1877f2; }
+  .admin-link-icon.tiktok { background: #010101; }
+  .admin-link-icon.default { background: var(--red); }
+
+  .admin-link-info { flex: 1; min-width: 0; }
+
+  .admin-link-label { font-weight: 600; font-size: 0.9375rem; }
+
+  .admin-link-url {
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .btn-remove {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: rgba(212,32,32,0.08);
+    color: var(--red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .btn-remove:hover { background: rgba(212,32,32,0.15); }
+  .btn-remove svg { width: 16px; height: 16px; }
+
+  /* Add link form */
+  .add-link-form {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--bg);
+    border-radius: 14px;
+  }
+
+  .add-link-form h4 {
+    font-size: 0.875rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--ink-secondary);
+  }
+
+  .add-link-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.625rem;
+    margin-bottom: 0.625rem;
+  }
+
+  .add-link-row.full { grid-template-columns: 1fr; }
+
+  .add-link-form input, .add-link-form select {
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    border: 1.5px solid rgba(0,0,0,0.08);
+    border-radius: 10px;
+    font-size: 0.8125rem;
+    font-family: var(--font);
+    color: var(--ink);
+    background: var(--surface);
+    outline: none;
+  }
+
+  .add-link-form input:focus, .add-link-form select:focus {
+    border-color: var(--red);
+  }
+
+  .btn-add-link {
+    width: 100%;
+    padding: 0.625rem;
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-add-link:hover { background: var(--red-deep); }
+
+  /* ========== MODAL ========== */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+
+  .modal-overlay.show { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+
+  .modal h3 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 0.625rem;
+    margin-top: 1.25rem;
+  }
+
+  .modal-actions button {
+    flex: 1;
+    padding: 0.75rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+
+  .btn-cancel {
+    background: var(--bg);
+    color: var(--ink-secondary);
+    border: 1.5px solid rgba(0,0,0,0.08);
+  }
+
+  .btn-confirm {
+    background: var(--red);
+    color: white;
+    border: none;
+  }
+
+  .btn-confirm:hover { transform: translateY(-1px); }
+
+  /* ========== TOAST ========== */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(120%);
+    background: var(--ink);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 14px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    z-index: 300;
+    transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ========== EMPTY ========== */
+  .admin-empty {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--ink-muted);
+  }
+
+  .admin-empty p { font-size: 0.9375rem; }
+
+  @media (max-width: 520px) {
+    .admin-body { padding: 1rem; }
+    .login-card { padding: 2rem 1.5rem; }
+    .add-link-row { grid-template-columns: 1fr; }
+  }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-card">
+    <h1>Admin Panel</h1>
+    <p>Đăng nhập để quản lý nhóm học tập</p>
+    <div class="form-group">
+      <label>Tài khoản</label>
+      <input type="text" id="loginUser" placeholder="Nhập tài khoản">
+    </div>
+    <div class="form-group">
+      <label>Mật khẩu</label>
+      <input type="password" id="loginPass" placeholder="Nhập mật khẩu">
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Đăng nhập</button>
+    <div class="login-error" id="loginError">Sai tài khoản hoặc mật khẩu!</div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="admin-wrap" id="adminWrap">
+  <div class="admin-header">
+    <h2>Quản lý nhóm</h2>
+    <button class="btn-logout" onclick="doLogout()">Đăng xuất</button>
+  </div>
+  <div class="admin-body">
+    <div class="toolbar">
+      <h3>Danh sách lớp</h3>
+      <button class="btn-add-class" onclick="showAddClass()">+ Tạo lớp</button>
+    </div>
+    <div id="classList"></div>
+  </div>
+</div>
+
+<!-- MODAL: Add/Rename Class -->
+<div class="modal-overlay" id="classModal">
+  <div class="modal">
+    <h3 id="classModalTitle">Tạo lớp mới</h3>
+    <div class="form-group">
+      <label>Tên lớp</label>
+      <input type="text" id="classNameInput" placeholder="VD: Toán 12 Nâng Cao">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="hideModal('classModal')">Hủy</button>
+      <button class="btn-confirm" id="classModalBtn" onclick="saveClass()">Tạo</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+var STORAGE_KEY = 'group_classes';
+var AUTH_USER = 'chetraulamay';
+var AUTH_PASS = '29092007';
+var editingClassId = null;
+
+var ICON_OPTIONS = [
+  { value: 'zalo', label: 'Zalo' },
+  { value: 'facebook', label: 'Facebook' },
+  { value: 'tiktok', label: 'TikTok' },
+  { value: 'default', label: 'Link khác' }
+];
+
+function getData() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch(e) { return []; }
+}
+
+function saveData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function genId(prefix) {
+  return prefix + '_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+}
+
+function escHtml(s) {
+  var d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function getClassInitial(name) {
+  var words = name.trim().split(/\s+/);
+  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
+  return name.substring(0, 2).toUpperCase();
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2500);
+}
+
+function showModal(id) { document.getElementById(id).classList.add('show'); }
+function hideModal(id) { document.getElementById(id).classList.remove('show'); }
+
+// LOGIN
+function doLogin() {
+  var u = document.getElementById('loginUser').value.trim();
+  var p = document.getElementById('loginPass').value.trim();
+  if (u === AUTH_USER && p === AUTH_PASS) {
+    sessionStorage.setItem('admin_logged', '1');
+    document.getElementById('loginWrap').style.display = 'none';
+    document.getElementById('adminWrap').style.display = 'block';
+    renderClasses();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem('admin_logged');
+  location.reload();
+}
+
+// Check session
+if (sessionStorage.getItem('admin_logged') === '1') {
+  document.getElementById('loginWrap').style.display = 'none';
+  document.getElementById('adminWrap').style.display = 'block';
+}
+
+// Enter key login
+document.getElementById('loginPass').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doLogin();
+});
+
+// CLASS CRUD
+function showAddClass() {
+  editingClassId = null;
+  document.getElementById('classModalTitle').textContent = 'Tạo lớp mới';
+  document.getElementById('classModalBtn').textContent = 'Tạo';
+  document.getElementById('classNameInput').value = '';
+  showModal('classModal');
+  setTimeout(function() { document.getElementById('classNameInput').focus(); }, 100);
+}
+
+function showRenameClass(id) {
+  var data = getData();
+  var cls = data.find(function(c) { return c.id === id; });
+  if (!cls) return;
+  editingClassId = id;
+  document.getElementById('classModalTitle').textContent = 'Đổi tên lớp';
+  document.getElementById('classModalBtn').textContent = 'Lưu';
+  document.getElementById('classNameInput').value = cls.name;
+  showModal('classModal');
+  setTimeout(function() { document.getElementById('classNameInput').focus(); }, 100);
+}
+
+function saveClass() {
+  var name = document.getElementById('classNameInput').value.trim();
+  if (!name) return;
+  var data = getData();
+  if (editingClassId) {
+    var cls = data.find(function(c) { return c.id === editingClassId; });
+    if (cls) cls.name = name;
+    showToast('Đã đổi tên lớp');
+  } else {
+    data.push({ id: genId('cls'), name: name, links: [] });
+    showToast('Đã tạo lớp "' + name + '"');
+  }
+  saveData(data);
+  hideModal('classModal');
+  renderClasses();
+}
+
+function deleteClass(id) {
+  if (!confirm('Xóa lớp này? Tất cả link nhóm sẽ bị mất.')) return;
+  var data = getData().filter(function(c) { return c.id !== id; });
+  saveData(data);
+  showToast('Đã xóa lớp');
+  renderClasses();
+}
+
+function toggleClass(id) {
+  var el = document.getElementById('class_' + id);
+  if (el) el.classList.toggle('open');
+}
+
+// LINK CRUD
+function addLink(classId) {
+  var label = document.getElementById('lnk_label_' + classId).value.trim();
+  var url = document.getElementById('lnk_url_' + classId).value.trim();
+  var icon = document.getElementById('lnk_icon_' + classId).value;
+  if (!label || !url) { showToast('Vui lòng nhập đủ tên và URL'); return; }
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  var data = getData();
+  var cls = data.find(function(c) { return c.id === classId; });
+  if (!cls) return;
+  cls.links.push({ id: genId('lnk'), label: label, url: url, icon: icon });
+  saveData(data);
+  showToast('Đã thêm link');
+  renderClasses();
+  var el = document.getElementById('class_' + classId);
+  if (el) el.classList.add('open');
+}
+
+function removeLink(classId, linkId) {
+  var data = getData();
+  var cls = data.find(function(c) { return c.id === classId; });
+  if (!cls) return;
+  cls.links = cls.links.filter(function(l) { return l.id !== linkId; });
+  saveData(data);
+  showToast('Đã xóa link');
+  renderClasses();
+  var el = document.getElementById('class_' + classId);
+  if (el) el.classList.add('open');
+}
+
+// RENDER
+function renderClasses() {
+  var data = getData();
+  var container = document.getElementById('classList');
+
+  if (data.length === 0) {
+    container.innerHTML = '<div class="admin-empty"><p>Chưa có lớp nào. Bấm "Tạo lớp" để bắt đầu.</p></div>';
+    return;
+  }
+
+  var html = '';
+  for (var i = 0; i < data.length; i++) {
+    var cls = data[i];
+    var initial = getClassInitial(cls.name);
+    var linkCount = cls.links ? cls.links.length : 0;
+
+    html += '<div class="admin-class" id="class_' + cls.id + '">';
+    html += '<div class="admin-class-header" onclick="toggleClass(\'' + cls.id + '\')">';
+    html += '<div class="admin-class-icon">' + escHtml(initial) + '</div>';
+    html += '<div class="admin-class-info">';
+    html += '<div class="admin-class-name">' + escHtml(cls.name) + '</div>';
+    html += '<div class="admin-class-count">' + linkCount + ' link nhóm</div>';
+    html += '</div>';
+    html += '<div class="admin-class-actions">';
+    html += '<button class="btn-icon" onclick="event.stopPropagation();showRenameClass(\'' + cls.id + '\')" title="Đổi tên"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
+    html += '<button class="btn-icon" onclick="event.stopPropagation();deleteClass(\'' + cls.id + '\')" title="Xóa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>';
+    html += '</div>';
+    html += '<svg class="admin-class-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>';
+    html += '</div>';
+
+    html += '<div class="admin-class-body">';
+
+    if (cls.links && cls.links.length > 0) {
+      for (var j = 0; j < cls.links.length; j++) {
+        var link = cls.links[j];
+        var iconCls = link.icon || 'zalo';
+        var iconLabel = iconCls.charAt(0).toUpperCase() + iconCls.slice(1);
+        if (iconCls === 'default') iconLabel = 'Link';
+
+        html += '<div class="admin-link-item">';
+        html += '<div class="admin-link-icon ' + iconCls + '">' + escHtml(iconLabel.substring(0, 2).toUpperCase()) + '</div>';
+        html += '<div class="admin-link-info">';
+        html += '<div class="admin-link-label">' + escHtml(link.label) + '</div>';
+        html += '<div class="admin-link-url">' + escHtml(link.url) + '</div>';
+        html += '</div>';
+        html += '<button class="btn-remove" onclick="removeLink(\'' + cls.id + '\',\'' + link.id + '\')" title="Xóa link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg></button>';
+        html += '</div>';
+      }
+    }
+
+    // Add link form
+    html += '<div class="add-link-form">';
+    html += '<h4>Thêm link nhóm</h4>';
+    html += '<div class="add-link-row">';
+    html += '<input type="text" id="lnk_label_' + cls.id + '" placeholder="Tên nút (VD: Zalo nhóm)">';
+    html += '<select id="lnk_icon_' + cls.id + '">';
+    for (var k = 0; k < ICON_OPTIONS.length; k++) {
+      html += '<option value="' + ICON_OPTIONS[k].value + '">' + ICON_OPTIONS[k].label + '</option>';
+    }
+    html += '</select>';
+    html += '</div>';
+    html += '<div class="add-link-row full">';
+    html += '<input type="text" id="lnk_url_' + cls.id + '" placeholder="URL (VD: https://zalo.me/g/...)">';
+    html += '</div>';
+    html += '<button class="btn-add-link" onclick="addLink(\'' + cls.id + '\')">Thêm</button>';
+    html += '</div>';
+
+    html += '</div></div>';
+  }
+
+  container.innerHTML = html;
+}
+
+renderClasses();
+
+document.getElementById('classNameInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') saveClass();
+});
+</script>
+</body>
+</html>

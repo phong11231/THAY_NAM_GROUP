@@ -1,0 +1,746 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THẦY NAM PRO — Nhóm học tập</title>
+<style>
+  :root {
+    --bg: #f4f0ec;
+    --surface: #ffffff;
+    --surface-elevated: #fffcf9;
+    --ink: #1a0f0a;
+    --ink-secondary: #5c4a42;
+    --ink-muted: #9a887e;
+    --red: #d42020;
+    --red-deep: #a01515;
+    --red-glow: rgba(212,32,32,0.15);
+    --gold: #c8960f;
+    --gold-light: #edb830;
+    --gold-bright: #ffd95c;
+    --navy: #1a1040;
+    --font: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+    --font-display: 'Baloo 2', 'Be Vietnam Pro', system-ui, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100dvh;
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+
+  /* ==================== HERO ==================== */
+  .hero {
+    position: relative;
+    background: linear-gradient(160deg, #e52828 0%, #c41818 35%, #a81212 70%, #8a0e0e 100%);
+    padding: 2.5rem 1.5rem 3.5rem;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 600px 400px at 20% 20%, rgba(255,220,80,0.15) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 300px at 80% 70%, rgba(255,255,255,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 300px 300px at 50% 100%, rgba(0,0,0,0.2) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: var(--bg);
+    clip-path: ellipse(55% 100% at 50% 100%);
+  }
+
+  .hero-math {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0.06;
+    font-size: 1.75rem;
+    color: white;
+    font-weight: 800;
+  }
+
+  .hero-math span { position: absolute; }
+  .hero-math span:nth-child(1) { top: 6%; left: 4%; transform: rotate(-18deg); font-size: 2rem; }
+  .hero-math span:nth-child(2) { top: 12%; right: 6%; transform: rotate(15deg); }
+  .hero-math span:nth-child(3) { bottom: 28%; left: 6%; transform: rotate(10deg); }
+  .hero-math span:nth-child(4) { bottom: 22%; right: 4%; transform: rotate(-12deg); font-size: 2.25rem; }
+  .hero-math span:nth-child(5) { top: 42%; left: 1%; transform: rotate(22deg); }
+  .hero-math span:nth-child(6) { top: 55%; right: 2%; transform: rotate(-6deg); }
+  .hero-math span:nth-child(7) { top: 30%; left: 20%; transform: rotate(-5deg); font-size: 1.5rem; }
+  .hero-math span:nth-child(8) { bottom: 40%; right: 18%; transform: rotate(8deg); font-size: 1.5rem; }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Teacher photo */
+  .teacher-photo-wrap {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 1.5rem;
+  }
+
+  .teacher-photo-ring {
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, var(--gold-bright), var(--gold), var(--gold-light), var(--gold-bright), var(--gold), var(--gold-light), var(--gold-bright));
+    animation: ring-spin 4s linear infinite;
+  }
+
+  .teacher-photo-ring::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background: var(--red-deep);
+  }
+
+  @keyframes ring-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .teacher-photo {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center 15%;
+    border: 3px solid rgba(255,255,255,0.2);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+    z-index: 1;
+  }
+
+  .teacher-verified {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    z-index: 2;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+    border: 3px solid var(--red-deep);
+  }
+
+  .teacher-verified svg {
+    width: 18px;
+    height: 18px;
+    color: var(--navy);
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 7vw, 3rem);
+    font-weight: 800;
+    color: white;
+    line-height: 1.05;
+    text-wrap: balance;
+    text-shadow: 0 3px 12px rgba(0,0,0,0.25);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+  }
+
+  .hero-title .gold {
+    background: linear-gradient(135deg, var(--gold-bright), var(--gold-light), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  }
+
+  .hero-sub {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.8);
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 0.5rem;
+  }
+
+  .hero-stat {
+    text-align: center;
+  }
+
+  .hero-stat-num {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--gold-bright);
+    line-height: 1.1;
+  }
+
+  .hero-stat-label {
+    font-size: 0.6875rem;
+    color: rgba(255,255,255,0.6);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ==================== MAIN ==================== */
+  .main {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 1.5rem 1.5rem 3rem;
+  }
+
+  /* ==================== CLASS CARD ==================== */
+  .class-card {
+    background: var(--surface);
+    border-radius: 24px;
+    padding: 1.75rem;
+    margin-bottom: 1.5rem;
+    box-shadow:
+      0 1px 3px rgba(0,0,0,0.04),
+      0 8px 24px rgba(0,0,0,0.06);
+    opacity: 0;
+    transform: translateY(24px);
+    animation: fade-up 0.55s cubic-bezier(0.22,1,0.36,1) forwards;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .class-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--red), var(--gold-light), var(--red));
+    background-size: 200% 100%;
+    animation: shimmer-bar 3s ease-in-out infinite;
+  }
+
+  @keyframes shimmer-bar {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  .class-card:nth-child(1) { animation-delay: 0.08s; }
+  .class-card:nth-child(2) { animation-delay: 0.16s; }
+  .class-card:nth-child(3) { animation-delay: 0.24s; }
+  .class-card:nth-child(4) { animation-delay: 0.32s; }
+  .class-card:nth-child(5) { animation-delay: 0.4s; }
+
+  @keyframes fade-up {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .class-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .class-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--red) 0%, var(--red-deep) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 800;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 6px 20px rgba(212,32,32,0.3);
+    letter-spacing: -0.02em;
+    position: relative;
+  }
+
+  .class-icon::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+  }
+
+  .class-info { flex: 1; }
+
+  .class-title {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+
+  .class-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.125rem;
+  }
+
+  .class-count {
+    font-size: 0.8125rem;
+    color: var(--ink-muted);
+    font-weight: 500;
+  }
+
+  .class-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.125rem 0.5rem;
+    background: linear-gradient(135deg, rgba(212,32,32,0.08), rgba(200,150,15,0.08));
+    border-radius: 100px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: var(--red);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .class-badge .dot-live {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--red);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(212,32,32,0.4); }
+    50% { box-shadow: 0 0 0 5px rgba(212,32,32,0); }
+  }
+
+  /* ==================== LINK BUTTON ==================== */
+  .link-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .link-btn {
+    display: flex;
+    align-items: center;
+    gap: 1.125rem;
+    padding: 1.125rem 1.25rem;
+    background: var(--surface-elevated);
+    border: 2px solid rgba(0,0,0,0.05);
+    border-radius: 18px;
+    text-decoration: none;
+    color: var(--ink);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.28s cubic-bezier(0.22,1,0.36,1),
+                border-color 0.28s,
+                box-shadow 0.32s cubic-bezier(0.22,1,0.36,1);
+  }
+
+  .link-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.28s;
+  }
+
+  .link-btn.platform-zalo::before { background: linear-gradient(135deg, rgba(0,104,255,0.06) 0%, transparent 50%); }
+  .link-btn.platform-facebook::before { background: linear-gradient(135deg, rgba(24,119,242,0.06) 0%, transparent 50%); }
+  .link-btn.platform-tiktok::before { background: linear-gradient(135deg, rgba(0,0,0,0.04) 0%, transparent 50%); }
+  .link-btn.platform-default::before { background: linear-gradient(135deg, rgba(212,32,32,0.06) 0%, transparent 50%); }
+
+  .link-btn:hover {
+    transform: translateY(-4px);
+  }
+
+  .link-btn.platform-zalo:hover { border-color: rgba(0,104,255,0.35); box-shadow: 0 16px 48px rgba(0,104,255,0.14), 0 4px 12px rgba(0,0,0,0.04); }
+  .link-btn.platform-facebook:hover { border-color: rgba(24,119,242,0.35); box-shadow: 0 16px 48px rgba(24,119,242,0.14), 0 4px 12px rgba(0,0,0,0.04); }
+  .link-btn.platform-tiktok:hover { border-color: rgba(0,0,0,0.2); box-shadow: 0 16px 48px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.04); }
+  .link-btn.platform-default:hover { border-color: rgba(212,32,32,0.3); box-shadow: 0 16px 48px rgba(212,32,32,0.12), 0 4px 12px rgba(0,0,0,0.04); }
+
+  .link-btn:hover::before { opacity: 1; }
+
+  .link-btn:active {
+    transform: translateY(-1px) scale(0.985);
+    transition-duration: 0.08s;
+  }
+
+  /* Platform icons */
+  .link-platform-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    transition: transform 0.28s cubic-bezier(0.22,1,0.36,1);
+  }
+
+  .link-btn:hover .link-platform-icon {
+    transform: scale(1.08);
+  }
+
+  .link-platform-icon img {
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.14));
+  }
+
+  .link-text {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .link-label {
+    display: block;
+    font-weight: 700;
+    font-size: 1.125rem;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+
+  .link-hint {
+    display: block;
+    font-size: 0.8125rem;
+    color: var(--ink-muted);
+    margin-top: 0.125rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Arrow */
+  .link-arrow {
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    transition: background 0.22s, transform 0.28s cubic-bezier(0.22,1,0.36,1), box-shadow 0.22s;
+  }
+
+  .link-arrow svg {
+    width: 20px;
+    height: 20px;
+    transition: color 0.22s, transform 0.22s cubic-bezier(0.22,1,0.36,1);
+  }
+
+  .platform-zalo .link-arrow { background: rgba(0,104,255,0.08); }
+  .platform-zalo .link-arrow svg { color: #0068ff; }
+  .platform-facebook .link-arrow { background: rgba(24,119,242,0.08); }
+  .platform-facebook .link-arrow svg { color: #1877f2; }
+  .platform-tiktok .link-arrow { background: rgba(0,0,0,0.06); }
+  .platform-tiktok .link-arrow svg { color: #1a0f0a; }
+  .platform-default .link-arrow { background: rgba(212,32,32,0.08); }
+  .platform-default .link-arrow svg { color: var(--red); }
+
+  .link-btn:hover .link-arrow { transform: translateX(4px); }
+
+  .platform-zalo:hover .link-arrow { background: #0068ff; box-shadow: 0 6px 16px rgba(0,104,255,0.35); }
+  .platform-facebook:hover .link-arrow { background: #1877f2; box-shadow: 0 6px 16px rgba(24,119,242,0.35); }
+  .platform-tiktok:hover .link-arrow { background: #1a0f0a; box-shadow: 0 6px 16px rgba(0,0,0,0.25); }
+  .platform-default:hover .link-arrow { background: var(--red); box-shadow: 0 6px 16px rgba(212,32,32,0.35); }
+
+  .link-btn:hover .link-arrow svg {
+    color: white;
+    transform: translateX(2px);
+  }
+
+  /* ==================== EMPTY ==================== */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 1.5rem;
+    background: var(--surface);
+    border-radius: 24px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  }
+
+  .empty-icon {
+    width: 88px;
+    height: 88px;
+    border-radius: 22px;
+    background: var(--surface-elevated);
+    border: 2px solid rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+    font-size: 2.5rem;
+  }
+
+  .empty-state h3 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--ink);
+    margin-bottom: 0.25rem;
+  }
+
+  .empty-state p {
+    font-size: 0.9375rem;
+    color: var(--ink-secondary);
+    line-height: 1.6;
+  }
+
+  /* ==================== FOOTER ==================== */
+  .footer {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+  }
+
+  .footer-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-weight: 700;
+    color: var(--red);
+    text-decoration: none;
+    font-size: 0.8125rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .footer p { margin-top: 0.25rem; }
+
+  /* ==================== RESPONSIVE ==================== */
+  @media (max-width: 520px) {
+    .hero { padding: 2rem 1.25rem 3rem; }
+    .teacher-photo-wrap { width: 120px; height: 120px; }
+    .teacher-photo { width: 120px; height: 120px; }
+    .teacher-photo-ring { inset: -5px; }
+    .teacher-verified { width: 32px; height: 32px; }
+    .teacher-verified svg { width: 16px; height: 16px; }
+    .hero-stats { gap: 1.5rem; }
+    .main { padding: 1.25rem 1rem 2.5rem; }
+    .class-card { padding: 1.25rem; border-radius: 20px; }
+    .class-icon { width: 48px; height: 48px; border-radius: 14px; }
+    .class-title { font-size: 1.1875rem; }
+    .link-btn { padding: 1rem; gap: 0.875rem; border-radius: 16px; }
+    .link-platform-icon, .link-platform-icon img { width: 50px; height: 50px; border-radius: 14px; }
+    .link-label { font-size: 1rem; }
+    .link-arrow { width: 40px; height: 40px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+    .class-card { opacity: 1; transform: none; }
+  }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-math">
+    <span>∫ dx</span>
+    <span>π²</span>
+    <span>Σ aₙ</span>
+    <span>√x</span>
+    <span>lim</span>
+    <span>Δy</span>
+    <span>f(x)</span>
+    <span>∞</span>
+  </div>
+  <div class="hero-content">
+    <div class="teacher-photo-wrap">
+      <div class="teacher-photo-ring"></div>
+      <img class="teacher-photo" src="thaynam.jpg" alt="Thầy Nam">
+      <div class="teacher-verified">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+    </div>
+    <h1 class="hero-title">THẦY NAM <span class="gold">PRO</span></h1>
+    <p class="hero-sub">Chọn lớp và bấm vào nhóm để tham gia ngay</p>
+    <div class="hero-stats" id="hero-stats"></div>
+  </div>
+</div>
+
+<div class="main" id="content"></div>
+
+<div class="footer">
+  <a class="footer-brand" href="#">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    Valley Study
+  </a>
+  <p>Siêu Chiến Binh Toán — Học thật, giỏi thật</p>
+</div>
+
+<script>
+var STORAGE_KEY = 'group_classes';
+
+function getData() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch(e) { return []; }
+}
+
+var PLATFORM_ICONS = {
+  zalo: {
+    cls: 'zalo',
+    src: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0yMi43ODIgMC4xNjYwMTZIMjcuMTk5QzMzLjI2NTMgMC4xNjYwMTYgMzYuODEwMyAxLjA1NzAxIDM5Ljk1NzIgMi43NDQyMUM0My4xMDQxIDQuNDMxNCA0NS41ODc1IDYuODk1ODUgNDcuMjU1NyAxMC4wNDI4QzQ4Ljk0MjkgMTMuMTg5NyA0OS44MzM5IDE2LjczNDcgNDkuODMzOSAyMi44MDFWMjcuMTk5MUM0OS44MzM5IDMzLjI2NTQgNDguOTQyOSAzNi44MTA0IDQ3LjI1NTcgMzkuOTU3M0M0NS41Njg1IDQzLjEwNDIgNDMuMTA0MSA0NS41ODc3IDM5Ljk1NzIgNDcuMjU1OUMzNi44MTAzIDQ4Ljk0MzEgMzMuMjY1MyA0OS44MzQxIDI3LjE5OSA0OS44MzQxSDIyLjgwMDlDMTYuNzM0NiA0OS44MzQxIDEzLjE4OTYgNDguOTQzMSAxMC4wNDI3IDQ3LjI1NTlDNi44OTU4MyA0NS41Njg3IDQuNDEyNDMgNDMuMTA0MiAyLjc0NDIgMzkuOTU3M0MxLjA1NyAzNi44MTA0IDAuMTY2MDE2IDMzLjI2NTQgMC4xNjYwMTYgMjcuMTk5MVYyMi44MDFDMC4xNjYwMTYgMTYuNzM0NyAxLjA1NyAxMy4xODk3IDIuNzQ0MiAxMC4wNDI4QzQuNDMxMzkgNi44OTU4NSA2Ljg5NTgzIDQuNDEyNDUgMTAuMDQyNyAyLjc0NDIxQzEzLjE3MDcgMS4wNTcwMSAxNi43MzQ2IDAuMTY2MDE2IDIyLjc4MiAwLjE2NjAxNloiIGZpbGw9IiMwMDY4RkYiLz4KPHBhdGggb3BhY2l0eT0iMC4xMiIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik00OS44MzM2IDI2LjQ3MzZWMjcuMTk5NEM0OS44MzM2IDMzLjI2NTcgNDguOTQyNyAzNi44MTA3IDQ3LjI1NTUgMzkuOTU3NkM0NS41NjgzIDQzLjEwNDUgNDMuMTAzOCA0NS41ODc5IDM5Ljk1NjkgNDcuMjU2MkMzNi44MSA0OC45NDM0IDMzLjI2NSA0OS44MzQ0IDI3LjE5ODcgNDkuODM0NEgyMi44MDA3QzE3LjgzNjkgNDkuODM0NCAxNC41NjEyIDQ5LjIzNzggMTEuODEwNCA0OC4wOTY2TDcuMjc1MzkgNDMuNDI2N0w0OS44MzM2IDI2LjQ3MzZaIiBmaWxsPSIjMDAxQTMzIi8+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNNy43NzkgNDMuNTg5MkMxMC4xMDE5IDQzLjg0NiAxMy4wMDYxIDQzLjE4MzYgMTUuMDY4MiA0Mi4xODI1QzI0LjAyMjUgNDcuMTMxOCAzOC4wMTk3IDQ2Ljg5NTQgNDYuNDkyMyA0MS40NzMyQzQ2LjgyMDkgNDAuOTgwMyA0Ny4xMjc5IDQwLjQ2NzcgNDcuNDEyOCAzOS45MzYzQzQ5LjEwNjIgMzYuNzc3OSA1MC4wMDA0IDMzLjIyIDUwLjAwMDQgMjcuMTMxNlYyMi43MTc1QzUwLjAwMDQgMTYuNjI5IDQ5LjEwNjIgMTMuMDcxMSA0Ny40MTI4IDkuOTEyNzNDNDUuNzM4NSA2Ljc1NDM2IDQzLjI0NjEgNC4yODA5MyA0MC4wODc3IDIuNTg3NThDMzYuOTI5MyAwLjg5NDIzOSAzMy4zNzE0IDAgMjcuMjgzIDBIMjIuODQ5OUMxNy42NjQ0IDAgMTQuMjk4MiAwLjY1Mjc1NCAxMS40Njk5IDEuODk4OTNDMTEuMzE1MyAyLjAzNzM3IDExLjE2MzYgMi4xNzgxOCAxMS4wMTUxIDIuMzIxMzVDMi43MTczNCAxMC4zMjAzIDIuMDg2NTggMjcuNjU5MyA5LjEyMjc5IDM3LjA3ODJDOS4xMzA2NCAzNy4wOTIxIDkuMTM5MzMgMzcuMTA2MSA5LjE0ODg5IDM3LjEyMDNDMTAuMjMzNCAzOC43MTg1IDkuMTg2OTQgNDEuNTE1NCA3LjU1MDY4IDQzLjE1MTZDNy4yODQzMSA0My4zOTkgNy4zNzk0NCA0My41NTEyIDcuNzc5IDQzLjU4OTJaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMjAuNTYzMiAxN0gxMC44MzgyVjE5LjA4NTNIMTcuNTg2OUwxMC45MzI5IDI3LjMzMTdDMTAuNzI0NCAyNy42MzUgMTAuNTcyOCAyNy45MTk0IDEwLjU3MjggMjguNTYzOVYyOS4wOTQ3SDE5Ljc0OEMyMC4yMDMgMjkuMDk0NyAyMC41ODIyIDI4LjcxNTYgMjAuNTgyMiAyOC4yNjA2VjI3LjE0MjFIMTMuNDkyMkwxOS43NDggMTkuMjkzOEMxOS44NDI4IDE5LjE4MDEgMjAuMDEzNCAxOC45NzE2IDIwLjA4OTMgMTguODc2OEwyMC4xMjcyIDE4LjgxOTlDMjAuNDg3NCAxOC4yODkxIDIwLjU2MzIgMTcuODM0MSAyMC41NjMyIDE3LjI4NDRWMTdaIiBmaWxsPSIjMDA2OEZGIi8+CjxwYXRoIGQ9Ik0zMi45NDE2IDI5LjA5NDdIMzQuMzI1NVYxN0gzMi4yNDAyVjI4LjM5MzNDMzIuMjQwMiAyOC43NzI1IDMyLjU0MzUgMjkuMDk0NyAzMi45NDE2IDI5LjA5NDdaIiBmaWxsPSIjMDA2OEZGIi8+CjxwYXRoIGQ9Ik0yNS44MTQgMTkuNjkyNEMyMy4xOTc5IDE5LjY5MjQgMjEuMDc0NyAyMS44MTU2IDIxLjA3NDcgMjQuNDMxN0MyMS4wNzQ3IDI3LjA0NzggMjMuMTk3OSAyOS4xNzEgMjUuODE0IDI5LjE3MUMyOC40MzAxIDI5LjE3MSAzMC41NTMzIDI3LjA0NzggMzAuNTUzMyAyNC40MzE3QzMwLjU3MjMgMjEuODE1NiAyOC40NDkxIDE5LjY5MjQgMjUuODE0IDE5LjY5MjRaTTI1LjgxNCAyNy4yMTg0QzI0LjI3ODUgMjcuMjE4NCAyMy4wMjczIDI1Ljk2NzIgMjMuMDI3MyAyNC40MzE3QzIzLjAyNzMgMjIuODk2MiAyNC4yNzg1IDIxLjY0NSAyNS44MTQgMjEuNjQ1QzI3LjM0OTUgMjEuNjQ1IDI4LjYwMDcgMjIuODk2MiAyOC42MDA3IDI0LjQzMTdDMjguNjAwNyAyNS45NjcyIDI3LjM2ODUgMjcuMjE4NCAyNS44MTQgMjcuMjE4NFoiIGZpbGw9IiMwMDY4RkYiLz4KPHBhdGggZD0iTTQwLjQ4NjcgMTkuNjE2MkMzNy44NTE2IDE5LjYxNjIgMzUuNzA5NSAyMS43NTg0IDM1LjcwOTUgMjQuMzkzNEMzNS43MDk1IDI3LjAyODUgMzcuODUxNiAyOS4xNzA3IDQwLjQ4NjcgMjkuMTcwN0M0My4xMjE3IDI5LjE3MDcgNDUuMjYzOSAyNy4wMjg1IDQ1LjI2MzkgMjQuMzkzNEM0NS4yNjM5IDIxLjc1ODQgNDMuMTIxNyAxOS42MTYyIDQwLjQ4NjcgMTkuNjE2MlpNNDAuNDg2NyAyNy4yMTgxQzM4LjkzMjIgMjcuMjE4MSAzNy42ODEgMjUuOTY2OSAzNy42ODEgMjQuNDEyNEMzNy42ODEgMjIuODU3OSAzOC45MzIyIDIxLjYwNjcgNDAuNDg2NyAyMS42MDY3QzQyLjA0MTIgMjEuNjA2NyA0My4yOTI0IDIyLjg1NzkgNDMuMjkyNCAyNC40MTI0QzQzLjI5MjQgMjUuOTY2OSA0Mi4wNDEyIDI3LjIxODEgNDAuNDg2NyAyNy4yMTgxWiIgZmlsbD0iIzAwNjhGRiIvPgo8cGF0aCBkPSJNMjkuNDU2MiAyOS4wOTQ0SDMwLjU3NDdWMTkuOTU3SDI4LjYyMjFWMjguMjc5M0MyOC42MjIxIDI4LjcxNTMgMjkuMDAxMiAyOS4wOTQ0IDI5LjQ1NjIgMjkuMDk0NFoiIGZpbGw9IiMwMDY4RkYiLz4KPC9zdmc+Cg=='
+  },
+  facebook: {
+    cls: 'facebook',
+    src: 'data:image/png;base64,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'
+  },
+  tiktok: {
+    cls: 'tiktok',
+    src: 'data:image/svg+xml,' + encodeURIComponent('<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="12" fill="#010101"/><path d="M33.5 20.2a8.4 8.4 0 01-5.5-2v10.3a7.5 7.5 0 11-6.5-7.4v4.2a3.4 3.4 0 102.4 3.2V10h4.1a5.3 5.3 0 005.5 5.2v5z" fill="white"/><path d="M32.5 19.2a8.4 8.4 0 01-5.5-2v10.3a7.5 7.5 0 11-6.5-7.4v4.2a3.4 3.4 0 102.4 3.2V9h4.1a5.3 5.3 0 005.5 5.2v5z" fill="#25F4EE" opacity="0.7"/><path d="M34 20.7a8.4 8.4 0 01-5.5-2v10.3a7.5 7.5 0 11-6.5-7.4v4.2a3.4 3.4 0 102.4 3.2V10.5h4.1a5.3 5.3 0 005.5 5.2v5z" fill="#FE2C55" opacity="0.7"/></svg>')
+  },
+  default: {
+    cls: 'default',
+    src: 'data:image/svg+xml,' + encodeURIComponent('<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="12" fill="#d42020"/><path d="M20 25a6 6 0 008.49.61l3.5-3.5a6 6 0 00-8.49-8.49l-2 2" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M28 23a6 6 0 00-8.49-.61l-3.5 3.5a6 6 0 008.49 8.49l2-2" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg>')
+  }
+};
+
+function getPlatform(link) {
+  return link.icon || 'zalo';
+}
+
+function getDomain(url) {
+  try { return new URL(url).hostname.replace('www.', ''); }
+  catch(e) { return ''; }
+}
+
+function escHtml(s) {
+  var d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function getClassInitial(name) {
+  var words = name.trim().split(/\s+/);
+  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
+  return name.substring(0, 2).toUpperCase();
+}
+
+var ARROW_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>';
+
+function render() {
+  var data = getData();
+  var container = document.getElementById('content');
+  var statsEl = document.getElementById('hero-stats');
+
+  var totalClasses = 0;
+  var totalLinks = 0;
+  data.forEach(function(c) {
+    if (c.links && c.links.length > 0) {
+      totalClasses++;
+      totalLinks += c.links.length;
+    }
+  });
+
+  if (totalClasses > 0) {
+    statsEl.innerHTML =
+      '<div class="hero-stat"><div class="hero-stat-num">' + totalClasses + '</div><div class="hero-stat-label">Lớp học</div></div>' +
+      '<div class="hero-stat"><div class="hero-stat-num">' + totalLinks + '</div><div class="hero-stat-label">Nhóm</div></div>';
+  }
+
+  if (data.length === 0 || totalClasses === 0) {
+    container.innerHTML =
+      '<div class="empty-state">' +
+      '<div class="empty-icon">&#128218;</div>' +
+      '<h3>Chưa có nhóm nào</h3>' +
+      '<p>Hãy quay lại sau nhé!</p>' +
+      '</div>';
+    return;
+  }
+
+  var html = '';
+  for (var i = 0; i < data.length; i++) {
+    var cls = data[i];
+    if (!cls.links || cls.links.length === 0) continue;
+
+    var initial = getClassInitial(cls.name);
+
+    html += '<div class="class-card">';
+    html += '<div class="class-header">';
+    html += '<div class="class-icon">' + escHtml(initial) + '</div>';
+    html += '<div class="class-info"><div class="class-title">' + escHtml(cls.name) + '</div>';
+    html += '<div class="class-meta">';
+    html += '<span class="class-count">' + cls.links.length + ' nhóm</span>';
+    html += '<span class="class-badge"><span class="dot-live"></span> Đang mở</span>';
+    html += '</div></div>';
+    html += '</div>';
+    html += '<div class="link-grid">';
+
+    for (var j = 0; j < cls.links.length; j++) {
+      var link = cls.links[j];
+      var platform = getPlatform(link);
+      var icon = PLATFORM_ICONS[platform] || PLATFORM_ICONS['default'];
+      var domain = getDomain(link.url);
+
+      html += '<a class="link-btn platform-' + icon.cls + '" href="' + escHtml(link.url) + '" target="_blank" rel="noopener noreferrer">';
+      html += '<div class="link-platform-icon ' + icon.cls + '"><img src="' + icon.src + '" alt="" width="58" height="58"></div>';
+      html += '<div class="link-text">';
+      html += '<span class="link-label">' + escHtml(link.label) + '</span>';
+      if (domain) html += '<span class="link-hint">' + escHtml(domain) + '</span>';
+      html += '</div>';
+      html += '<div class="link-arrow">' + ARROW_SVG + '</div>';
+      html += '</a>';
+    }
+
+    html += '</div></div>';
+  }
+
+  container.innerHTML = html;
+}
+
+render();
+
+// Auto-refresh: check localStorage every 2 seconds for changes from admin
+var lastData = localStorage.getItem(STORAGE_KEY);
+setInterval(function() {
+  var current = localStorage.getItem(STORAGE_KEY);
+  if (current !== lastData) {
+    lastData = current;
+    render();
+  }
+}, 2000);
+</script>
+</body>
+</html>
