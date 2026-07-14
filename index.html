@@ -612,12 +612,11 @@
 </div>
 
 <script>
-var STORAGE_KEY = 'group_classes';
+var REPO_OWNER = 'phong11231';
+var REPO_NAME = 'THAY_NAM_GROUP';
+var DATA_URL = 'https://raw.githubusercontent.com/' + REPO_OWNER + '/' + REPO_NAME + '/main/data.json';
 
-function getData() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-  catch(e) { return []; }
-}
+var cachedData = [];
 
 var PLATFORM_ICONS = {
   zalo: {
@@ -661,8 +660,7 @@ function getClassInitial(name) {
 
 var ARROW_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>';
 
-function render() {
-  var data = getData();
+function render(data) {
   var container = document.getElementById('content');
   var statsEl = document.getElementById('hero-stats');
 
@@ -731,17 +729,20 @@ function render() {
   container.innerHTML = html;
 }
 
-render();
+function loadData() {
+  fetch(DATA_URL + '?t=' + Date.now())
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      cachedData = data || [];
+      render(cachedData);
+    })
+    .catch(function() {
+      render([]);
+    });
+}
 
-// Auto-refresh: check localStorage every 2 seconds for changes from admin
-var lastData = localStorage.getItem(STORAGE_KEY);
-setInterval(function() {
-  var current = localStorage.getItem(STORAGE_KEY);
-  if (current !== lastData) {
-    lastData = current;
-    render();
-  }
-}, 2000);
+loadData();
+setInterval(loadData, 15000);
 </script>
 </body>
 </html>

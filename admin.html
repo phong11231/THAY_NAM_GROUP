@@ -518,12 +518,26 @@
     <h2>Quản lý nhóm</h2>
     <button class="btn-logout" onclick="doLogout()">Đăng xuất</button>
   </div>
-  <div class="admin-body">
+
+  <!-- GitHub Token Setup -->
+  <div class="admin-body" id="tokenSetup" style="display:none;">
+    <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:12px;padding:1.25rem;margin-bottom:1rem;">
+      <h4 style="margin:0 0 0.5rem;color:#856404;">Cài đặt GitHub Token</h4>
+      <p style="font-size:0.85rem;color:#856404;margin:0 0 0.75rem;">Nhập Personal Access Token (PAT) của GitHub để lưu dữ liệu lên web. Token chỉ lưu trên trình duyệt này.</p>
+      <input type="password" id="ghTokenInput" placeholder="ghp_xxxxxxxxxxxx" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:8px;font-size:0.9rem;box-sizing:border-box;">
+      <button class="btn-primary" onclick="saveToken()" style="margin-top:0.75rem;width:100%;">Lưu Token</button>
+    </div>
+  </div>
+
+  <div class="admin-body" id="mainPanel" style="display:none;">
     <div class="toolbar">
       <h3>Danh sách lớp</h3>
       <button class="btn-add-class" onclick="showAddClass()">+ Tạo lớp</button>
     </div>
     <div id="classList"></div>
+    <div style="margin-top:1rem;text-align:right;">
+      <button onclick="clearToken()" style="background:none;border:none;color:#999;font-size:0.75rem;cursor:pointer;text-decoration:underline;">Đổi GitHub Token</button>
+    </div>
   </div>
 </div>
 
@@ -546,10 +560,15 @@
 <div class="toast" id="toast"></div>
 
 <script>
-var STORAGE_KEY = 'group_classes';
+var REPO_OWNER = 'phong11231';
+var REPO_NAME = 'THAY_NAM_GROUP';
+var API_URL = 'https://api.github.com/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/data.json';
 var AUTH_USER = 'chetraulamay';
 var AUTH_PASS = '29092007';
 var editingClassId = null;
+var cachedData = [];
+var fileSha = null;
+var isSaving = false;
 
 var ICON_OPTIONS = [
   { value: 'zalo', label: 'Zalo' },
@@ -558,13 +577,105 @@ var ICON_OPTIONS = [
   { value: 'default', label: 'Link khác' }
 ];
 
-function getData() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-  catch(e) { return []; }
+function getToken() {
+  return localStorage.getItem('gh_token') || '';
 }
 
-function saveData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+function saveToken() {
+  var token = document.getElementById('ghTokenInput').value.trim();
+  if (!token) { showToast('Vui lòng nhập token'); return; }
+  localStorage.setItem('gh_token', token);
+  showToast('Đã lưu token');
+  checkTokenAndLoad();
+}
+
+function clearToken() {
+  localStorage.removeItem('gh_token');
+  document.getElementById('tokenSetup').style.display = 'block';
+  document.getElementById('mainPanel').style.display = 'none';
+}
+
+function checkTokenAndLoad() {
+  if (getToken()) {
+    document.getElementById('tokenSetup').style.display = 'none';
+    document.getElementById('mainPanel').style.display = 'block';
+    loadDataFromGitHub();
+  } else {
+    document.getElementById('tokenSetup').style.display = 'block';
+    document.getElementById('mainPanel').style.display = 'none';
+  }
+}
+
+function loadDataFromGitHub() {
+  fetch(API_URL, {
+    headers: { 'Authorization': 'token ' + getToken(), 'Accept': 'application/vnd.github.v3+json' }
+  })
+  .then(function(r) {
+    if (r.status === 401 || r.status === 403) {
+      showToast('Token khong hop le hoac het han!');
+      clearToken();
+      return null;
+    }
+    if (r.status === 404) {
+      fileSha = null;
+      cachedData = [];
+      renderClasses();
+      return null;
+    }
+    return r.json();
+  })
+  .then(function(json) {
+    if (!json) return;
+    fileSha = json.sha;
+    try {
+      var content = atob(json.content.replace(/\n/g, ''));
+      cachedData = JSON.parse(content) || [];
+    } catch(e) {
+      cachedData = [];
+    }
+    renderClasses();
+  })
+  .catch(function(err) {
+    showToast('Loi ket noi GitHub!');
+  });
+}
+
+function saveDataToGitHub(data, callback) {
+  if (isSaving) { showToast('Dang luu, vui long cho...'); return; }
+  isSaving = true;
+  var content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+  var body = {
+    message: 'Cap nhat du lieu nhom',
+    content: content
+  };
+  if (fileSha) body.sha = fileSha;
+
+  fetch(API_URL, {
+    method: 'PUT',
+    headers: {
+      'Authorization': 'token ' + getToken(),
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  })
+  .then(function(r) {
+    if (!r.ok) {
+      return r.json().then(function(err) { throw new Error(err.message || 'Loi luu'); });
+    }
+    return r.json();
+  })
+  .then(function(json) {
+    fileSha = json.content.sha;
+    cachedData = data;
+    isSaving = false;
+    if (callback) callback(true);
+  })
+  .catch(function(err) {
+    isSaving = false;
+    showToast('Loi luu: ' + err.message);
+    if (callback) callback(false);
+  });
 }
 
 function genId(prefix) {
@@ -601,7 +712,7 @@ function doLogin() {
     sessionStorage.setItem('admin_logged', '1');
     document.getElementById('loginWrap').style.display = 'none';
     document.getElementById('adminWrap').style.display = 'block';
-    renderClasses();
+    checkTokenAndLoad();
   } else {
     document.getElementById('loginError').style.display = 'block';
   }
@@ -616,6 +727,7 @@ function doLogout() {
 if (sessionStorage.getItem('admin_logged') === '1') {
   document.getElementById('loginWrap').style.display = 'none';
   document.getElementById('adminWrap').style.display = 'block';
+  checkTokenAndLoad();
 }
 
 // Enter key login
@@ -634,8 +746,7 @@ function showAddClass() {
 }
 
 function showRenameClass(id) {
-  var data = getData();
-  var cls = data.find(function(c) { return c.id === id; });
+  var cls = cachedData.find(function(c) { return c.id === id; });
   if (!cls) return;
   editingClassId = id;
   document.getElementById('classModalTitle').textContent = 'Đổi tên lớp';
@@ -648,26 +759,33 @@ function showRenameClass(id) {
 function saveClass() {
   var name = document.getElementById('classNameInput').value.trim();
   if (!name) return;
-  var data = getData();
+  var data = cachedData.slice();
   if (editingClassId) {
     var cls = data.find(function(c) { return c.id === editingClassId; });
     if (cls) cls.name = name;
-    showToast('Đã đổi tên lớp');
   } else {
     data.push({ id: genId('cls'), name: name, links: [] });
-    showToast('Đã tạo lớp "' + name + '"');
   }
-  saveData(data);
+  var wasEditing = editingClassId;
+  var savedName = name;
   hideModal('classModal');
-  renderClasses();
+  saveDataToGitHub(data, function(ok) {
+    if (ok) {
+      showToast(wasEditing ? 'Da doi ten lop' : 'Da tao lop "' + savedName + '"');
+      renderClasses();
+    }
+  });
 }
 
 function deleteClass(id) {
   if (!confirm('Xóa lớp này? Tất cả link nhóm sẽ bị mất.')) return;
-  var data = getData().filter(function(c) { return c.id !== id; });
-  saveData(data);
-  showToast('Đã xóa lớp');
-  renderClasses();
+  var data = cachedData.filter(function(c) { return c.id !== id; });
+  saveDataToGitHub(data, function(ok) {
+    if (ok) {
+      showToast('Da xoa lop');
+      renderClasses();
+    }
+  });
 }
 
 function toggleClass(id) {
@@ -682,32 +800,40 @@ function addLink(classId) {
   var icon = document.getElementById('lnk_icon_' + classId).value;
   if (!label || !url) { showToast('Vui lòng nhập đủ tên và URL'); return; }
   if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-  var data = getData();
+  var data = JSON.parse(JSON.stringify(cachedData));
   var cls = data.find(function(c) { return c.id === classId; });
   if (!cls) return;
   cls.links.push({ id: genId('lnk'), label: label, url: url, icon: icon });
-  saveData(data);
-  showToast('Đã thêm link');
-  renderClasses();
-  var el = document.getElementById('class_' + classId);
-  if (el) el.classList.add('open');
+  var openClassId = classId;
+  saveDataToGitHub(data, function(ok) {
+    if (ok) {
+      showToast('Da them link');
+      renderClasses();
+      var el = document.getElementById('class_' + openClassId);
+      if (el) el.classList.add('open');
+    }
+  });
 }
 
 function removeLink(classId, linkId) {
-  var data = getData();
+  var data = JSON.parse(JSON.stringify(cachedData));
   var cls = data.find(function(c) { return c.id === classId; });
   if (!cls) return;
   cls.links = cls.links.filter(function(l) { return l.id !== linkId; });
-  saveData(data);
-  showToast('Đã xóa link');
-  renderClasses();
-  var el = document.getElementById('class_' + classId);
-  if (el) el.classList.add('open');
+  var openClassId = classId;
+  saveDataToGitHub(data, function(ok) {
+    if (ok) {
+      showToast('Da xoa link');
+      renderClasses();
+      var el = document.getElementById('class_' + openClassId);
+      if (el) el.classList.add('open');
+    }
+  });
 }
 
 // RENDER
 function renderClasses() {
-  var data = getData();
+  var data = cachedData;
   var container = document.getElementById('classList');
 
   if (data.length === 0) {
@@ -777,8 +903,6 @@ function renderClasses() {
 
   container.innerHTML = html;
 }
-
-renderClasses();
 
 document.getElementById('classNameInput').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') saveClass();
